@@ -12,7 +12,7 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init = 
-    ( { title = "My App" }, Cmd.none )
+    ( { title = "Bellroy Coding Task" }, Cmd.none )
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
