@@ -12,7 +12,7 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init = 
-    ( { title = "Bellroy Coding Task" }, Cmd.none )
+    ({ title = "Bellroy Coding Task" }, Cmd.none )
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -22,10 +22,32 @@ update msg model =
 
 view : Model -> Element Msg
 view model =
-    el 
-        [ width fill
+    el
+        [ Element.width fill
         , padding 10
-        , Background.color (rgb255 240 240 240)
+        , Background.color (Element.rgb255 240 240 240)
+        ]
+        (headerContent model)
+
+headerContent : Model -> Element msg
+headerContent model =
+    Element.row
+        [ Element.width fill
+        , Element.alignBottom
+        --, Element.spacing 10
         , Font.center
         ]
-        (text model.title)
+        [
+           headerIcon
+        ,  text model.title
+        ]
+
+headerIcon : Element msg
+headerIcon =
+    Element.image
+        [ Element.width (Element.px 66)
+        , Element.height (Element.px 66)
+        ]
+        { src = "../images/bellroy icon red.svg"
+        , description = "Header Icon"
+        }
