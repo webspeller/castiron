@@ -26,6 +26,7 @@ view model =
         [ Element.width fill
         , padding 10
         , Background.color (Element.rgb255 240 240 240)
+        , Element.centerX
         ]
         (headerContent model)
 

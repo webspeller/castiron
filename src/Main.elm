@@ -9,6 +9,7 @@ import Html exposing (Html)
 import Header
 import Footer
 import Theme
+import Element.Border exposing (widthXY)
 
 main : Program () Model Msg
 main =
@@ -102,22 +103,64 @@ footerView model =
 
 gridView : Element Msg
 gridView =
-    wrappedRow 
-        [ width fill
-        , height fill
-        , padding 20
-        , spacing 10
-        , Background.color (rgb255 240 240 240)
+    el
+    [ width (fillPortion 100)
+    , padding 2
+    , spacing 1
+    , Background.color (rgb255 240 240 240)
+    ]
+    ( el
+        [ {- -width (fillPortion 200)widthXY 80 80
+       
+        padding 2
+        , spacing 1
+        , Background.color (rgb255 240 240 240) -}
+        centerX
+        , centerY
         ]
-        (List.map gridCell (List.range 1 25))
+        (Element.column
+        []
+        [gridSet
+        , gridSet
+        , gridSet
+        , gridSet
+        , gridSet]
+        )
+    )
+
+
+gridSet : Element Msg
+gridSet =
+    el
+    [ {- widthXY 80 80
+    , width fill
+    , height fill
+     width (fillPortion 100) 
+    
+    , padding 2
+    , spacing 1
+    , Background.color (rgb255 240 240 240)
+    , centerX -}
+    ]
+    ( row 
+        [  --widthXY 2 2
+        --width fill
+         --height fill
+         padding 2
+        , spacing 1
+        , Background.color (rgb255 150 150 150)
+        , centerX
+        ]
+        (List.map gridCell (List.range 1 5))
+    )
 
 gridCell : Int -> Element Msg
 gridCell index =
     el 
-        [ width (fillPortion 1)
-        , height (px 100)
-        , Background.color (rgb255 200 200 200)
-        , Border.width 1
+        [ widthXY 8 8
+        , height fill
+        , Background.color (rgb255 150 150 150)
+        , Border.width 50
         , Border.color (rgb255 150 150 150)
         , Font.center
         , Font.color (rgb255 50 50 50)
