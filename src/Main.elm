@@ -5,11 +5,12 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import Html exposing (Html)
+import Html exposing (Html, Attribute)
+import Html.Events exposing (on)
 import Header
 import Footer
 import Theme
-import Element.Border exposing (widthXY)
+import Json.Decode as Decode
 
 main : Program () Model Msg
 main =
@@ -23,12 +24,47 @@ main =
 type alias Model =
     { headerModel : Header.Model
     , footerModel : Footer.Model
+    , botCoords : { x : Int, y : Int }
     }
 
 type Msg
     = HeaderMsg Header.Msg
     | FooterMsg Footer.Msg
+    | Move To
     | NoOp
+
+type To
+    = Up
+    | Down
+    | Left
+    | Right
+
+onKeyDown : Html.Attribute Msg
+onKeyDown =
+    on "keydown" keyDecoder
+
+keyDecoder : Decode.Decoder Msg
+keyDecoder =
+    Decode.field "key" Decode.string
+        |> Decode.andThen keyToMsg
+
+keyToMsg : String -> Decode.Decoder Msg
+keyToMsg key =
+    case key of
+        "ArrowLeft" ->
+            Decode.succeed (Move Left)
+
+        "ArrowRight" ->
+            Decode.succeed (Move Right)
+
+        "ArrowUp" ->
+            Decode.succeed (Move Up)
+
+        "ArrowDown" ->
+            Decode.succeed (Move Down)
+
+        _ ->
+            Decode.fail "Not an arrow key"
 
 init : () -> ( Model, Cmd Msg )
 init _ =
@@ -41,7 +77,9 @@ init _ =
     in
     ( { headerModel = headerModel
       , footerModel = footerModel
+      , botCoords = { x = 0, y = 0 }
       }
+    
     , Cmd.batch
         [ Cmd.map HeaderMsg headerCmd
         , Cmd.map FooterMsg footerCmd
@@ -68,7 +106,29 @@ update msg model =
             ( { model | footerModel = footerModel }
             , Cmd.map FooterMsg footerCmd
             )
-        
+
+        Move direction ->
+            let
+                updateCoords : To -> { x : Int, y : Int } -> { x : Int, y : Int }
+                updateCoords to coords =
+                    case to of
+                        Up ->
+                            { coords | y = coords.y - 1 }
+
+                        Down ->
+                            { coords | y = coords.y + 1 }
+
+                        Left ->
+                            { coords | x = coords.x - 1 }
+
+                        Right ->
+                            { coords | x = coords.x + 1 }
+
+                newCoords =
+                    updateCoords direction model.botCoords
+            in
+            ( { model | botCoords = newCoords }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -76,7 +136,7 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.none
 
-view : Model -> Html Msg
+view : Model -> Html.Html Msg
 view model =
     Element.layout 
         [ width fill
@@ -88,8 +148,9 @@ view model =
             , height fill
             ]
             [ headerView model
-            , gridView
+            , gridView model.botCoords
             , footerView model
+            , botView model
             ]
         )
 
@@ -101,8 +162,8 @@ footerView : Model -> Element Msg
 footerView model =
     Element.map FooterMsg (Footer.view model.footerModel)
 
-gridView : Element Msg
-gridView =
+gridView : { x : Int, y : Int } -> Element Msg
+gridView botCoords =
     el
     [ width (fillPortion 100)
     , padding 2
@@ -110,59 +171,56 @@ gridView =
     , Background.color (rgb255 240 240 240)
     ]
     ( el
-        [ {- -width (fillPortion 200)widthXY 80 80
-       
-        padding 2
-        , spacing 1
-        , Background.color (rgb255 240 240 240) -}
-        centerX
+        [ centerX
         , centerY
         ]
         (Element.column
         []
-        [gridSet
-        , gridSet
-        , gridSet
-        , gridSet
-        , gridSet]
+        (List.map (gridSet botCoords) (List.range 1 5))
         )
     )
 
-
-gridSet : Element Msg
-gridSet =
+gridSet : { x : Int, y : Int } -> Int -> Element Msg
+gridSet botCoords y =
     el
-    [ {- widthXY 80 80
-    , width fill
-    , height fill
-     width (fillPortion 100) 
-    
-    , padding 2
-    , spacing 1
-    , Background.color (rgb255 240 240 240)
-    , centerX -}
-    ]
+    []
     ( row 
-        [  --widthXY 2 2
-        --width fill
-         --height fill
-         padding 2
+        [ padding 2
         , spacing 1
         , Background.color (rgb255 150 150 150)
         , centerX
         ]
-        (List.map gridCell (List.range 1 5))
+        (List.map (gridCell botCoords y) (List.range 1 5))
     )
 
-gridCell : Int -> Element Msg
-gridCell index =
+gridCell : { x : Int, y : Int } -> Int -> Int -> Element Msg
+gridCell botCoords y x =
+    let
+        txt = 
+            if botCoords.x == x && botCoords.y == y then 
+                "B" 
+            else 
+                String.fromInt x ++ ", " ++ String.fromInt y
+    in
     el 
-        [ widthXY 8 8
-        , height fill
+        [ width (px 50)
+        , height (px 50)
         , Background.color (rgb255 150 150 150)
-        , Border.width 50
+        , Border.width 1
         , Border.color (rgb255 150 150 150)
         , Font.center
         , Font.color (rgb255 50 50 50)
         ]
-        (text (String.fromInt index))
+        (Element.text txt)
+
+botView : Model -> Element Msg
+botView model = 
+    el
+        [ width (px 300)
+        , height (px 300)
+        , Background.color (rgb255 0 0 255)
+        , Font.color (rgb255 255 255 255)
+        , centerX
+        , centerY
+        ]
+        (Element.text ("x: " ++ String.fromInt model.botCoords.x ++ ", y: " ++ String.fromInt model.botCoords.y))

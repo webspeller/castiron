@@ -3,15 +3,16 @@ module Header exposing (Model, Msg, init, update, view)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Font as Font
+import Debug exposing (toString)
 
-type alias Model = 
+type alias Model =
     { title : String }
 
-type Msg 
+type Msg
     = NoOp
 
 init : ( Model, Cmd Msg )
-init = 
+init =
     ({ title = "Bellroy Coding Task" }, Cmd.none )
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -26,7 +27,6 @@ view model =
         [ Element.width fill
         , padding 10
         , Background.color (Element.rgb255 240 240 240)
-        , Element.centerX
         ]
         (headerContent model)
 
@@ -34,21 +34,21 @@ headerContent : Model -> Element msg
 headerContent model =
     Element.row
         [ Element.width fill
-        , Element.alignBottom
-        --, Element.spacing 10
-        , Font.center
+        , Element.padding 20  -- Added padding to spread items
         ]
-        [
-           headerIcon
-        ,  text model.title
+        [ headerIcon
+        , Element.el 
+            [ Element.centerX ]
+            (Element.text model.title)
         ]
 
 headerIcon : Element msg
 headerIcon =
     Element.image
-        [ Element.width (Element.px 66)
-        , Element.height (Element.px 66)
+        [ Element.width (Element.px 22)
+        , Element.height (Element.px 22)
+        , Element.alignLeft
         ]
-        { src = "../images/bellroy icon red.svg"
+        { src = "../images/bellr icon red.svg"
         , description = "Header Icon"
         }

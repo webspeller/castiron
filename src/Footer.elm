@@ -7,7 +7,6 @@ import Element.Font exposing (center)
 
 type alias Model = 
     { copyright : String
-     , year : Int
     }
 
 type Msg 
@@ -15,7 +14,7 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    ({ copyright = "©", year = 2024 }, Cmd.none )
+    ({ copyright = "|   All rights reserved © 2024  |   Bellr Pty Ltd"}, Cmd.none )
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -23,10 +22,10 @@ update msg model =
             ( model, Cmd.none )
 
 view : Model -> Element Msg
-view model =
+view model=
      el
         [ width fill
-         ,padding 10
+         ,padding 2
         , Background.color (Element.rgb255 240 240 240)
         --,centerX
         ]
@@ -37,34 +36,22 @@ footerContent model =
     Element.row
         [ 
          Element.spacing 10
-        , Element.alignBottom
-        , Element.Font.center
-        ,centerX
+        , alignBottom
+       -- , Element.Font.center
+        , centerX
         , Font.size 11
         ]
         [
            footerIcon
         ,  text model.copyright
-        , text model.footerYear
         ]
-footerYear: Element msg
-footerYear  =
-    Element.row
-        [width (fillPortion 100) 
-         ,  Element.spacing 10
-        , Element.alignBottom
-        , Element.Font.center
-        , Font.size 11
-        ]
-        [
-            text (String.fromInt (model.year))
-        ]
+
 footerIcon : Element msg
 footerIcon =
     Element.image
-        [ Element.width (Element.px 66)
-        , Element.height (Element.px 66)
+        [ Element.width (Element.px 22)
+        , Element.height (Element.px 22)
         ]
-        { src = "../images/bellroy icon.svg"
+        { src = "../images/bellr icon.svg"
         , description = "Footer Icon"
         }
